@@ -1,3 +1,4 @@
+# No Copyright. Vladislav Aleinik, 2020
 # Hex Counter With MMIO On RISC-V Processor
 .text
 .globl _start

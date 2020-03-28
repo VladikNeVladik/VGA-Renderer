@@ -191,13 +191,17 @@ set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -
 
 set_global_assignment -name VERILOG_FILE top.v
 set_global_assignment -name VERILOG_FILE memory_controller.v
+
 set_global_assignment -name VERILOG_FILE utility/window_size_managers.v
+set_global_assignment -name VERILOG_FILE utility/pll_clk_mul.v
+
 set_global_assignment -name VERILOG_FILE proc/top.v
 set_global_assignment -name VERILOG_FILE proc/registers.v
 set_global_assignment -name VERILOG_FILE proc/memory_access_control.v
 set_global_assignment -name VERILOG_FILE proc/instr_decoder.v
 set_global_assignment -name VERILOG_FILE proc/flow_control.v
 set_global_assignment -name VERILOG_FILE proc/arithmetic_logic_unit.v
+
 set_global_assignment -name VERILOG_FILE devices/vga_controller.v
 set_global_assignment -name VERILOG_FILE devices/uart_controller.v
 set_global_assignment -name VERILOG_FILE devices/rom_controller.v
@@ -209,4 +213,9 @@ set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS ON
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_global_assignment -name QIP_FILE utility/pll_clk_mul.qip
+set_global_assignment -name QIP_FILE utility/ram_2_port.qip
+set_global_assignment -name ENABLE_CONFIGURATION_PINS OFF
+set_global_assignment -name ENABLE_BOOT_SEL_PIN OFF
+set_global_assignment -name CYCLONEII_RESERVE_NCEO_AFTER_CONFIGURATION "USE AS REGULAR IO"
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

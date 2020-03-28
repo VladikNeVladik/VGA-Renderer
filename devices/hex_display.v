@@ -43,7 +43,7 @@ reg [15:0]counter_div = 0;
 reg [ 1:0]counter     = 0;
 
 always @(posedge clk) begin
-	counter_div <= counter_div + 1;
+	counter_div <= counter_div + 16'b1;
 
 	if (counter_div == 0)
 		counter <= counter + 2'b1;

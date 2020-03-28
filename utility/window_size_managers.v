@@ -1,9 +1,8 @@
 // No Copyright. Vladislav Aleinik, 2020
 //=============================================================================
-// Window Size Managers
+// Windowed Word Reader
 //=============================================================================
 // - All loads pass through a Windowed Word Reader module
-// - All stores pass are performed through Windowed Word Writer module
 //=============================================================================
 module WindowedWordReader(
 	input [31:0]word_in,
@@ -36,6 +35,11 @@ always @(*) begin
 end
 endmodule
 
+//=============================================================================
+// Windowed Word Writer
+//=============================================================================
+// - All stores pass are performed through Windowed Word Writer module
+//=============================================================================
 module WindowedWordWriter(
 	input [31:0]word_from_cpu,
 	input [31:0]word_from_memory,

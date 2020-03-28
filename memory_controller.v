@@ -59,16 +59,16 @@ wire [7:0]uart_addr_data  =  data_addr[7:0];
 wire [7:0]uart_addr_instr = instr_addr[7:0];
 
 //==========================//
-// VGA 320x240 Video Memory //
+// VGA 160x120 Video Memory // 
 //==========================//
-// Mapped at 0xEEE00000 - 0xEEE12BFF
+// Mapped at 0xEEEE0000 - 0xEEEEE0FF
 // Device Id = 4
 // Read      = No 
 // Write     = Yes
 // Execute   = No 
 
-wire [17:0]vga_addr_data  =  data_addr[17:0];
-wire [17:0]vga_addr_instr = instr_addr[17:0];
+wire [14:0]vga_addr_data  =  data_addr[14:0];
+wire [14:0]vga_addr_instr = instr_addr[14:0];
 
 //=======//
 // Stack //
@@ -119,7 +119,7 @@ always @(*) begin
 	end
 
 	// VGA Video Memory:
-	else if (32'hEEE00000 <= data_addr && data_addr < 32'hEEE12C00) begin
+	else if (32'hEEEE0000 <= data_addr && data_addr < 32'hEEEEE100) begin
 		data_device     = 4;
 		data_addr_local = vga_addr_data;
 
@@ -182,7 +182,7 @@ always @(*) begin
 	end
 
 	// VGA Video Memory:
-	else if (32'hEEE00000 <= instr_addr && instr_addr < 32'hEEE12C00) begin
+	else if (32'hEEEE0000 <= instr_addr && instr_addr < 32'hEEEEE100) begin
 		instr_device     = 4;
 		instr_addr_local = vga_addr_instr;
 
