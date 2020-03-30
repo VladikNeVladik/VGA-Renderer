@@ -3,7 +3,7 @@ LD      = riscv64-linux-gnu-ld
 OBJCOPY = riscv64-linux-gnu-objcopy
 OBJDUMP = riscv64-linux-gnu-objdump
 
-SRCS=$(wildcard *.s)
+SRCS=$(wildcard *.asm)
 TXTS=$(SRCS:%.s=%.mem)
 
 all : ${TXTS}
@@ -17,7 +17,7 @@ all : ${TXTS}
 %.out: %.o
 	$(LD) -melf32lriscv $^ -o $@ && $(OBJDUMP) -d $@
 
-%.o: %.s
+%.o: %.asm
 	$(AS) -march=rv32i -mabi=ilp32 -c $^ -o $@
 
 .PHONY: all clean
