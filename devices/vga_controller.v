@@ -31,8 +31,8 @@ PllClockMultiplier pll_clk_mul(.inclk0(clk), .c0(vga_clk));
 //---------------------//
 
 // Out:
-wire [9:0]pos_x;
-wire [9:0]pos_y;
+wire [14:0]pos_x;
+wire [14:0]pos_y;
 
 wire vga_read_enable;
 
@@ -53,14 +53,14 @@ VgaSync vga_sync(
 //--------------//
 
 // In:
-wire [14:0]vga_read_address = vga_read_enable? (pos_x[9:2] + pos_y[9:2] * 160) : 15'b0;
+wire [14:0]vga_read_address = vga_read_enable? (pos_x[14:2] + pos_y[14:2] * 160) : 15'b0;
 
 // Out:
 wire [2:0]stored_rgb;
 
-assign rgb = vga_read_enable ? stored_rgb : 2'b0;
+assign rgb = stored_rgb;
 
-TwoPortRandomAccessMemory video_memory(
+VideoMemory video_memory(
 	// Write at 48 MHz
 	.wraddress(data_addr),
 	.data     (data_in),
@@ -69,8 +69,9 @@ TwoPortRandomAccessMemory video_memory(
 
 	// Read at 25.175 MHz
 	.rdaddress(vga_read_address),
+	.rden     (vga_read_enable),
 	.rdclock  (vga_clk),
-	.q(stored_rgb)
+	.q        (stored_rgb)
 );
 
 endmodule
@@ -83,8 +84,8 @@ endmodule
 module VgaSync(
 	input clk,
 
-	output [9:0]pos_x,
-	output [9:0]pos_y,
+	output [14:0]pos_x,
+	output [14:0]pos_y,
 
 	output reg h_sync,
 	output reg v_sync,
@@ -92,17 +93,17 @@ module VgaSync(
 	output active_zone
 );
 
-parameter [9:0]H_BACK   = 48;
-parameter [9:0]H_ACTIVE = 640;
-parameter [9:0]H_FRONT  = 16;
-parameter [9:0]H_SYNC   = 96;
-parameter [9:0]H_TOTAL  = H_FRONT + H_SYNC + H_BACK + H_ACTIVE;
+parameter [14:0]H_BACK   = 48;
+parameter [14:0]H_ACTIVE = 640;
+parameter [14:0]H_FRONT  = 16;
+parameter [14:0]H_SYNC   = 96;
+parameter [14:0]H_TOTAL  = H_FRONT + H_SYNC + H_BACK + H_ACTIVE;
 
-parameter [9:0]V_BACK   = 33;
-parameter [9:0]V_ACTIVE = 480;
-parameter [9:0]V_FRONT  = 10;
-parameter [9:0]V_SYNC   = 2;
-parameter [9:0]V_TOTAL  = V_FRONT + V_SYNC + V_BACK + V_ACTIVE;
+parameter [14:0]V_BACK   = 33;
+parameter [14:0]V_ACTIVE = 480;
+parameter [14:0]V_FRONT  = 10;
+parameter [14:0]V_SYNC   = 2;
+parameter [14:0]V_TOTAL  = V_FRONT + V_SYNC + V_BACK + V_ACTIVE;
 
 // | BACK PORCH | ACTIVE ZONE | FRONT PORCH | H_SYNC |
 
@@ -121,8 +122,8 @@ parameter [9:0]V_TOTAL  = V_FRONT + V_SYNC + V_BACK + V_ACTIVE;
 // |------------|-------------|-------------|--------| V_SYNC
 // |------------|-------------|-------------|--------|
 
-reg [9:0]h_pos = 0;
-reg [9:0]v_pos = 0;
+reg [14:0]h_pos = 0;
+reg [14:0]v_pos = 0;
 
 assign pos_x = h_pos - H_BACK;
 assign pos_y = v_pos - V_BACK;

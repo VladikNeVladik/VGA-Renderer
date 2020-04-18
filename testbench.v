@@ -7,12 +7,16 @@ always begin
     #1 clk = ~clk;
 end
 
-top top(clk, DS_EN1, DS_EN2, DS_EN3, DS_EN4, DS_A, DS_B, DS_C, DS_D, DS_E, DS_F, DS_G);
+wire [4:0]V_R;
+wire [5:0]V_G;
+wire [4:0]V_B;
+
+top top(clk, RXD, DS_EN1, DS_EN2, DS_EN3, DS_EN4, DS_A, DS_B, DS_C, DS_D, DS_E, DS_F, DS_G, H_SYNC, V_SYNC, V_R, V_G, V_B);
 
 initial begin
 	$display("Processor Testing Initiated!");
     $dumpvars;
-    #1000 $finish;
+    #5000 $finish;
 end
 
 endmodule

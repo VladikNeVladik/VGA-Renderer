@@ -9,21 +9,21 @@ module ReadOnlyMemory #(
 ) (
 	input clk,
 
-	input [8:0] data_addr,
-	input [8:0]instr_addr,
+	input [11:0] data_addr,
+	input [11:0]instr_addr,
 
 	output reg [31:0]data, 
 	output reg [31:0]instr
 );
 
-reg [31:0]read_only_memory[127:0];
+reg [31:0]read_only_memory[1023:0];
 initial begin
-    $readmemh(ROM_IMAGE, read_only_memory, 0, 127);
+    $readmemh(ROM_IMAGE, read_only_memory, 0, 1023);
 end
 
 always @(posedge clk) begin
-	data  <= read_only_memory[data_addr[8:2]];
-	instr <= read_only_memory[instr_addr[8:2]];
+	data  <= read_only_memory[ data_addr[11:2]];
+	instr <= read_only_memory[instr_addr[11:2]];
 end
 
 endmodule

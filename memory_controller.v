@@ -25,14 +25,14 @@ module MemoryController(
 //==================//
 // Read Only Memory //
 //==================//
-// Mapped at 0x00002000 - 0x000023FF 
+// Mapped at 0x00002000 - 0x00002FFF 
 // Device Id = 1
 // Read      = Yes
 // Write     = No
 // Execute   = Yes
 
-wire [9:0]rom_addr_data  =  data_addr[9:0];
-wire [9:0]rom_addr_instr = instr_addr[9:0];
+wire [11:0]rom_addr_data  =  data_addr[11:0];
+wire [11:0]rom_addr_instr = instr_addr[11:0];
 
 //=============//
 // Hex Display //
@@ -49,14 +49,14 @@ wire hex_addr_instr = instr_addr[0];
 //===================//
 // Uart Input Buffer //
 //===================//
-// Mapped at 0x00000200 - 0x000002FF
+// Mapped at 0x00000200 - 0x00000207
 // Device Id = 3
 // Read      = No
 // Write     = No
 // Execute   = Yes
 
-wire [7:0]uart_addr_data  =  data_addr[7:0];
-wire [7:0]uart_addr_instr = instr_addr[7:0];
+wire [2:0]uart_addr_data  =  data_addr[2:0];
+wire [2:0]uart_addr_instr = instr_addr[2:0];
 
 //==========================//
 // VGA 160x120 Video Memory // 
@@ -73,72 +73,76 @@ wire [14:0]vga_addr_instr = instr_addr[14:0];
 //=======//
 // Stack //
 //=======//
-// Mapped at 0xFFFFF000 - 0xFFFFFFFF
+// Mapped at 0xFFFFFF00 - 0xFFFFFFFF
 // Device Id = 5
 // Read      = Yes
 // Write     = Yes
 // Execute   = No
 
-wire [11:0]stack_addr_data  =  data_addr[11:0];
-wire [11:0]stack_addr_instr = instr_addr[11:0];
+wire [7:0]stack_addr_data  =  data_addr[7:0];
+wire [7:0]stack_addr_instr = instr_addr[7:0];
 
 always @(*) begin
 //---------------------------//
 // Perform Read/Write Checks //
 //---------------------------//
-	// ROM:
-	if ((data_addr & 32'hFFFFFC00) == 32'h00002000) begin
-		data_device     = 1;
-		data_addr_local = rom_addr_data;
+	if (window_size != 2'b11) begin
+		// ROM:
+		if ((data_addr & 32'hFFFFF000) == 32'h00002000) begin
+			data_device     = 1;
+			data_addr_local = rom_addr_data;
 
-		if (write_enable && window_size != 2'b11) begin
-			exceptions[0] = 1;
-			$display("[MEMORY-CONTROLLER] ROM write forbidden!");
+			if (write_enable) begin
+				exceptions[0] = 1;
+				$display("[MEMORY-CONTROLLER] ROM write forbidden!");
+			end
+			else exceptions[0] = 0;
 		end
-		else exceptions[0] = 0;
-	end
 
-	// Hex Display:
-	else if ((data_addr & 32'hFFFFFFFE) == 32'h00000100) begin
-		data_device     = 2;
-		data_addr_local = hex_addr_data;
+		// Hex Display:
+		else if ((data_addr & 32'hFFFFFFFE) == 32'h00000100) begin
+			data_device     = 2;
+			data_addr_local = hex_addr_data;
 
-		exceptions[0] = 0;
-	end
+			exceptions[0] = 0;
+		end
 
-	// Uart Input Buffer:
-	else if ((data_addr & 32'hFFFFFF00) == 32'h00000200) begin
-		data_device     = 3;
-		data_addr_local = uart_addr_data;
+		// Uart Input Buffer:
+		else if ((data_addr & 32'hFFFFFFF8) == 32'h00000200) begin
+			data_device     = 3;
+			data_addr_local = uart_addr_data;
 
-		if (window_size != 2'b11) begin
 			exceptions[0] = 1;
 			$display("[MEMORY-CONTROLLER] UART input buffer read/write forbidden!");
 		end
-		else exceptions[0] = 0;
-	end
 
-	// VGA Video Memory:
-	else if (32'hEEEE0000 <= data_addr && data_addr < 32'hEEEEE100) begin
-		data_device     = 4;
-		data_addr_local = vga_addr_data;
+		// VGA Video Memory:
+		else if (32'hEEEE0000 <= data_addr && data_addr < 32'hEEEEE100) begin
+			data_device     = 4;
+			data_addr_local = vga_addr_data;
 
-		if (!write_enable && window_size != 2'b11) begin
-			exceptions[0] = 1;
-			$display("[MEMORY-CONTROLLER] VGA memory read forbidden!");
+			if (!write_enable) begin
+				exceptions[0] = 1;
+				$display("[MEMORY-CONTROLLER] VGA memory read forbidden!");
+			end
+			else exceptions[0] = 0;
 		end
-		else exceptions[0] = 0;
+
+		// Stack:
+		else if ((data_addr & 32'hFFFFFF00) == 32'hFFFFFF00) begin
+			data_device     = 5;
+			data_addr_local = stack_addr_data;
+
+			exceptions[0] = 0;
+		end
+
+		// Default case:
+		else begin
+			exceptions[0]   = 0;
+			data_device     = 0;
+			data_addr_local = 0;
+		end
 	end
-
-	// Stack:
-	else if ((data_addr & 32'hFFFFF000) == 32'hFFFFF000) begin
-		data_device     = 5;
-		data_addr_local = stack_addr_data;
-
-		exceptions[0] = 0;
-	end
-
-	// Default case:
 	else begin
 		exceptions[0]   = 0;
 		data_device     = 0;
@@ -146,7 +150,7 @@ always @(*) begin
 	end
 	
 	// Check for data access address alignment:
-	if (data_addr[1:0] != 0 && window_size == 2'b00 ||
+	if (data_addr[1:0] != 0 && window_size == 2'b10 ||
 		data_addr[  0] != 0 && window_size == 2'b01) begin
 		exceptions[1] = 1;
 		$display("[MEMORY-CONTROLLER] Unaligned data read/write!");
@@ -157,7 +161,7 @@ always @(*) begin
 // Perform Execution Checks //
 //--------------------------//
 	// ROM:
-	if ((instr_addr & 32'hFFFFFC00) == 32'h00002000) begin
+	if ((instr_addr & 32'hFFFFF000) == 32'h00002000) begin
 		instr_device     = 1;
 		instr_addr_local = rom_addr_instr;
 
@@ -174,7 +178,7 @@ always @(*) begin
 	end
 
 	// Uart Input Buffer:
-	else if ((instr_addr & 32'hFFFFFF00) == 32'h00000200) begin
+	else if ((instr_addr & 32'hFFFFFFF8) == 32'h00000200) begin
 		instr_device     = 3;
 		instr_addr_local = uart_addr_instr;
 
@@ -191,7 +195,7 @@ always @(*) begin
 	end
 
 	// Stack:
-	else if ((instr_addr & 32'hFFFFF000) == 32'hFFFFF000) begin
+	else if ((instr_addr & 32'hFFFFFF00) == 32'hFFFFFF00) begin
 		instr_device     = 5;
 		instr_addr_local = stack_addr_instr;
 
@@ -201,7 +205,7 @@ always @(*) begin
 
 	// Default case:
 	else begin
-		exceptions[2]    = 1;
+		exceptions[2]    = 0;
 		instr_device     = 0;
 		instr_addr_local = 0;
 	end
