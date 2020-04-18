@@ -489,22 +489,23 @@ int main()
     {
         vis_clear();    
 
-        if (x == 50) dir = -1;
         if (x ==  0) dir = +1;
+        if (x == 60) dir = -1;
 
-        vis_player_ship(30 + 2*x, 110);
+        vis_player_ship(20 + 2*x, 110);
 
-        vis_enemy_corvette(140 - x, 10);
-        vis_enemy_corvette(120 - x, 10);
-        vis_enemy_corvette(100 - x, 10);
-        vis_enemy_corvette(80  - x, 10);
+        vis_enemy_corvette(30 +  48 - x, 10);
+        vis_enemy_corvette(30 +  64 - x, 10);
+        vis_enemy_corvette(30 +  80 - x, 10);
+        vis_enemy_corvette(30 +  96 - x, 10);
+        vis_enemy_corvette(30 + 112 - x, 10);
 
-        vis_enemy_corvette(130 - x, 20);
-        vis_enemy_corvette(110 - x, 20);
-        vis_enemy_corvette(90  - x, 20);
-        vis_enemy_corvette(70  - x, 20);
+        vis_enemy_corvette(30 +  56 - x, 20);
+        vis_enemy_corvette(30 +  72 - x, 20);
+        vis_enemy_corvette(30 +  88 - x, 20);
+        vis_enemy_corvette(30 + 104 - x, 20);
 
-        for (u_int32_t time = 0; time < SEC/8; ++time); 
+        for (u_int32_t time = 0; time < SEC/32; ++time); 
     }
 
     return 0;

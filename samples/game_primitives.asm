@@ -872,19 +872,19 @@ main:
 	sw	s9,4(sp)
 	li	s0,0
 	li	s1,1
-	li	s7,50
-	li	s9,-1
 	li	s8,1
-	li	s6,140
-	li	s5,120
-	li	s4,100
-	li	s3,80
-	li	s2,130
+	li	s7,60
+	li	s9,-1
+	li	s6,78
+	li	s5,94
+	li	s4,126
+	li	s3,142
+	li	s2,86
 	j	.L25
 .L26:
-	mv	s1,s9
+	mv	s1,s8
 .L23:
-	add	a0,s0,15
+	add	a0,s0,10
 	li	a1,110
 	sll	a0,a0,1
 	call	vis_player_ship@plt
@@ -893,6 +893,10 @@ main:
 	call	vis_enemy_corvette@plt
 	li	a1,10
 	sub	a0,s5,s0
+	call	vis_enemy_corvette@plt
+	li	a1,10
+	li	a0,110
+	sub	a0,a0,s0
 	call	vis_enemy_corvette@plt
 	li	a1,10
 	sub	a0,s4,s0
@@ -904,28 +908,28 @@ main:
 	sub	a0,s2,s0
 	call	vis_enemy_corvette@plt
 	li	a1,20
-	li	a0,110
+	li	a0,102
 	sub	a0,a0,s0
 	call	vis_enemy_corvette@plt
 	li	a1,20
-	li	a0,90
+	li	a0,118
 	sub	a0,a0,s0
 	call	vis_enemy_corvette@plt
 	li	a1,20
-	li	a0,70
+	li	a0,134
 	sub	a0,a0,s0
 	call	vis_enemy_corvette@plt
-	li	a5,2998272
-	add	a5,a5,1728
+	li	a5,749568
+	add	a5,a5,432
 .L24:
 	add	a5,a5,-1
 	bnez	a5,.L24
 	add	s0,s0,s1
 .L25:
 	call	vis_clear@plt
-	beq	s0,s7,.L26
-	bnez	s0,.L23
-	mv	s1,s8
+	beqz	s0,.L26
+	bne	s0,s7,.L23
+	mv	s1,s9
 	j	.L23
 	.size	main, .-main
 	.ident	"GCC: (Ubuntu 7.4.0-1ubuntu1~18.04.1) 7.4.0"

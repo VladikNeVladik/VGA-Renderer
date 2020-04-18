@@ -48,11 +48,11 @@ end
 reg [7:0]head = 0;
 reg [7:0]tail = 0;
 
-reg  [31:0]cur_instr = 0;
-reg  [ 1:0]byte_num  = 0;
+reg [31:0]cur_instr = 0;
+reg [ 1:0]byte_num  = 0;
 
-reg  [7:0]cur_byte = 0;
-reg  [3:0]bit_num  = 0;
+reg [7:0]cur_byte = 0;
+reg [3:0]bit_num  = 0;
 
 reg parity_bit = 0;
 

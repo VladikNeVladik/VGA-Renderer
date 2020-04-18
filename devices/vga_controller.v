@@ -13,7 +13,7 @@ module VgaController(
 
 	input write_enable,
 
-	output [2:0]rgb,
+	output [6:0]rgbrgb,
 	output h_sync, v_sync
 );
 
@@ -48,30 +48,56 @@ VgaSync vga_sync(
 	.active_zone(vga_read_enable)
 );
 
+//-------------------//
+// Image Hysteresis  //
+//-------------------//
+
+reg [14:0]data_to_set_addr = 0;
+reg [ 5:0]data_to_set = 0;
+reg prev_write_enable = 0;
+
+always @(posedge clk) begin
+	data_to_set_addr  <= data_addr;
+	data_to_set       <= {prev_data[2:0], data_in[2:0]};
+	prev_write_enable <= write_enable;
+end
+
 //--------------//
 // Video Memory //
 //--------------//
 
+// Port A;
+// In:
+wire mem_read_enable = write_enable && !prev_write_enable;
+wire [14:0]mem_addr  = (write_enable && !prev_write_enable) ? data_addr : data_to_set_addr;
+
+// Out:
+wire [5:0]prev_data; 
+
+// Port B:
 // In:
 wire [14:0]vga_read_address = vga_read_enable? (pos_x[14:2] + pos_y[14:2] * 160) : 15'b0;
 
 // Out:
-wire [2:0]stored_rgb;
-
-assign rgb = stored_rgb;
+wire [5:0]stored_rgb;
+assign rgbrgb = stored_rgb;
 
 VideoMemory video_memory(
-	// Write at 48 MHz
-	.wraddress(data_addr),
-	.data     (data_in),
-	.wren     (write_enable),
-	.wrclock  (clk),
+	// Read-Write at 48 MHz
+	.clock_a  (clk),
+	.address_a(mem_addr),
+	.rden_a   (mem_read_enable),
+	.q_a      (prev_data),
+	.wren_a   (prev_write_enable),
+	.data_a   (data_to_set),
 
 	// Read at 25.175 MHz
-	.rdaddress(vga_read_address),
-	.rden     (vga_read_enable),
-	.rdclock  (vga_clk),
-	.q        (stored_rgb)
+	.clock_b  (vga_clk),
+	.address_b(vga_read_address),
+	.rden_b   (vga_read_enable),
+	.q_b      (stored_rgb),
+	.wren_b   (0),
+	.data_b   (5'b0)
 );
 
 endmodule

@@ -180,10 +180,10 @@ UartController uart_reciever(
 wire write_enable_vga = (data_device == 4) & write_enable;
 
 // VGA Cable Output:
-wire [2:0]rgb;
-assign V_R = {5{rgb[0]}};
-assign V_G = {6{rgb[1]}};
-assign V_B = {5{rgb[2]}};
+wire [5:0]rgb;
+assign V_R = {{2{rgb[0]}}, {3{rgb[3]}}};
+assign V_G = {{2{rgb[1]}}, {4{rgb[4]}}};
+assign V_B = {{2{rgb[2]}}, {3{rgb[5]}}};
 
 VgaController vga_controller(
 	.clk(CLK),
@@ -193,7 +193,7 @@ VgaController vga_controller(
 
 	.write_enable(write_enable_vga),
 
-	.rgb(rgb),
+	.rgbrgb(rgb),	
 	.h_sync(H_SYNC),
 	.v_sync(V_SYNC)	
 );
