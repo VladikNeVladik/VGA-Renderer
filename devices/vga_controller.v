@@ -13,7 +13,7 @@ module VgaController(
 
 	input write_enable,
 
-	output [6:0]rgbrgb,
+	output [5:0]rgbrgb,
 	output h_sync, v_sync
 );
 

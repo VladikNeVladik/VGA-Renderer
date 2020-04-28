@@ -43,11 +43,11 @@ wire zero_extension;
 
 wire [31:0]instr_addr_global;
 
-wire [8:0]exceptions;
+wire [9:0]exceptions;
 
 Processor #(
-//	.INIT_PC(32'h00000200) // UART Buffer Starting Position
-	.INIT_PC(32'h00002000) // Rom Starting Position
+	.INIT_PC(32'h00000200) // UART Buffer Starting Position	
+//	.INIT_PC(32'h00002000) // Rom Starting Position
 ) cpu(
 	.clk(CLK),
 
@@ -134,14 +134,35 @@ assign {DS_EN1, DS_EN2, DS_EN3, DS_EN4} = ~anodes;
 wire [6:0]segments;
 assign {DS_A, DS_B, DS_C, DS_D, DS_E, DS_F, DS_G} = segments;
 
+// HexDisplay hex_display(
+// 	.clk(CLK),
+
+// 	.data_addr(data_addr_local[1:0]),
+// 	.data_in  (data_to_memory),
+	
+// 	.write_enable(write_enable_hex),
+// 	.window_size (window_size),
+
+// 	.data_out(data_from_hex),
+
+// 	.anodes  (anodes),
+// 	.segments(segments)
+// );
+
+wire [31:0]seg7;
+// wire running_main = 32'h00002CC4 <= instr_addr_global && instr_addr_global <= 32'h00002D30;
+// wire running_ship = 32'h000023f8 <= instr_addr_global && instr_addr_global <= 32'h00002860;
+// wire running_corv = 32'h00002004 <= instr_addr_global && instr_addr_global <= 32'h00002344;
+// wire running_cler = 32'h00002CA8 <= instr_addr_global && instr_addr_global <= 32'h00002CC0;
+
 HexDisplay hex_display(
 	.clk(CLK),
 
-	.data_addr(data_addr_local[1:0]),
-	.data_in  (data_to_memory),
+	.data_addr(2'b00),
+	.data_in  (seg7),
 	
-	.write_enable(write_enable_hex),
-	.window_size (window_size),
+	.write_enable(1'b1),
+	.window_size (2'b10),
 
 	.data_out(data_from_hex),
 
@@ -155,7 +176,11 @@ HexDisplay hex_display(
 //=================//
 
 // In:
-wire fetch_enable_uart = (data_device == 3);
+wire fetch_enable_uart = (instr_device == 3);
+reg uart_rx = 0;
+always @(posedge CLK) begin
+	uart_rx <= RXD;
+end
 
 // Out:
 wire [31:0]instr_from_uart;
@@ -163,12 +188,13 @@ wire [31:0]instr_from_uart;
 UartController uart_reciever(
 	.clk(CLK),
 
-	.uart_rx(RXD),
+	.uart_rx(uart_rx),
 
 	.fetch_enable(fetch_enable_uart),
-	.instr_addr(data_addr_local[2:0]),
+	.instr_addr(instr_addr_local[2:0]),
 
-	.instr(instr_from_uart)
+	.instr(instr_from_uart),
+	.seg7(seg7)
 );
 
 // Device #4
@@ -220,17 +246,6 @@ StackController stack_controller(
 
 	.data_out(data_from_stack)
 );
-
-// Device #6 (Not Mapped)
-//=====================//
-// Instruction Counter //
-//=====================//
-
-reg [31:0]clock_counter = 0;
-
-always @(posedge CLK) begin
-	clock_counter <= clock_counter + 1;
-end
 
 //===========================================//
 // Demultiplex data and instruction fetch    //

@@ -38,8 +38,8 @@ assign j_type_imm[31:20] = {12{instr[31]}};
 // I-type:
 wire [31:0]i_type_imm;
 
-assign i_type_imm[10: 0] = instr[30:20];
-assign i_type_imm[31:11] = {21{instr[31]}};
+assign i_type_imm[11: 0] = instr[31:20];
+assign i_type_imm[31:12] = {20{instr[31]}};
 
 // B-type:
 wire [31:0]b_type_imm;

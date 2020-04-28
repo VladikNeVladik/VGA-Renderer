@@ -41,7 +41,7 @@ inline void set_pix(u_int32_t x, u_int32_t y, char color) {
 
 void vis_enemy_corvette(u_int32_t x, u_int32_t y) {
     if (!(4 <= x && x <= WIDTH - 5 && 6 <= y && y <= HEIGHT - 7))
-        return;
+         return;
 
     const char color = RED;
 
@@ -226,7 +226,7 @@ void vis_start_screen() {
 void vis_death_screen() {
     char color = RED|GREEN|BLUE;
 
-    const u_int32_t x = 10, y = 70;
+    const u_int32_t x = 15, y = 121;
 
     set_pix(x +  6, y -  3, color);
     set_pix(x +  6, y -  4, color);

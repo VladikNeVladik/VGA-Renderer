@@ -16,7 +16,7 @@ top top(clk, RXD, DS_EN1, DS_EN2, DS_EN3, DS_EN4, DS_A, DS_B, DS_C, DS_D, DS_E, 
 initial begin
 	$display("Processor Testing Initiated!");
     $dumpvars;
-    #5000 $finish;
+    #10000 $finish;
 end
 
 endmodule
